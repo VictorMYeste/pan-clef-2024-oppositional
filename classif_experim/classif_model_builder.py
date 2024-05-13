@@ -1,7 +1,7 @@
 import logging, os
 from copy import copy
 
-from classif_experim.classif_experiment_runner import HF_CORE_HPARAMS, MAX_SEQ_LENGTH, build_transformer_model
+from classif_experim.classif_experiment_runner_electra_2 import HF_CORE_HPARAMS, MAX_SEQ_LENGTH, build_transformer_model
 from classif_experim.hf_skelarn_wrapper import SklearnTransformerClassif
 from data_tools.dataset_loaders import load_dataset_classification
 
