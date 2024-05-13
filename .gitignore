@@ -1,7 +1,6 @@
 # generic ignores of the project
 # put local ignores to .gitignore
 
-/settings.py
 .idea
 .vscode
 
