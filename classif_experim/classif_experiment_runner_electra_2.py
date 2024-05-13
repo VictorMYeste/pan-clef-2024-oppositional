@@ -7,7 +7,7 @@ from sklearn.metrics import confusion_matrix
 from sklearn.model_selection import StratifiedKFold
 
 from classif_experim.classif_utils import classif_scores
-from classif_experim.hf_skelarn_wrapper_data_augmentation import SklearnTransformerClassif
+from classif_experim.hf_skelarn_wrapper import SklearnTransformerClassif
 from data_tools.dataset_loaders import load_dataset_classification
 
 
