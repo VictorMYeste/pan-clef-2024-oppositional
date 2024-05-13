@@ -12,6 +12,5 @@ __pycache__
 *.sh
 !generate_requirements.sh
 *.txt
-*.json
 *.pkl
 *.safetensors
