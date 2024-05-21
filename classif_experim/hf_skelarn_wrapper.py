@@ -16,7 +16,7 @@ from sklearn.metrics import f1_score, accuracy_score
 from sklearn.model_selection import train_test_split
 from transformers import AutoModelForSequenceClassification, TrainingArguments, Trainer, \
     TextClassificationPipeline
-from transformers import AutoTokenizer, set_seed
+from transformers import AutoTokenizer, AutoModel, set_seed
 from transformers import DataCollatorWithPadding
 
 from classif_experim.pynvml_helpers import print_gpu_utilization, print_cuda_devices
@@ -341,3 +341,34 @@ if __name__ == '__main__':
     test_hf_wrapper(test_dset='imdb', subsample=100, eval=None)
 
 
+class SklearnTransformerMultiTask(SklearnTransformerBase):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def save(self, output_dir):
+        """
+        Save the multi-task model specific components, if any.
+        """
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+        # Guardar el estado del encoder
+        self.model.encoder.save_pretrained(output_dir)
+        # Guardar cada cabeza de salida
+        for task_id, head in self.model.output_heads.items():
+            torch.save(head.state_dict(), os.path.join(output_dir, f"head_{task_id}.pt"))
+        self.tokenizer.save_pretrained(output_dir)
+        self.save_class_attributes(output_dir)
+
+    @classmethod
+    def load(cls, input_dir):
+        """
+        Load the multi-task model specific components, if any.
+        """
+        instance = cls.load_class_attributes(input_dir)
+        instance.model.encoder = AutoModel.from_pretrained(input_dir)
+        for task_id in instance.task_ids:  # Assuming task_ids are stored or can be inferred
+            path = os.path.join(input_dir, f"head_{task_id}.pt")
+            head_state = torch.load(path)
+            instance.model.output_heads[str(task_id)].load_state_dict(head_state)
+        instance.tokenizer = AutoTokenizer.from_pretrained(input_dir)
+        return instance

@@ -2,6 +2,7 @@ import logging, os
 from copy import copy
 
 from classif_experim.hf_skelarn_wrapper import SklearnTransformerBase
+from classif_experim.hf_skelarn_wrapper import SklearnTransformerMultiTask
 from data_tools.dataset_loaders import load_dataset_full
 from sequence_labeling.seqlabel_experiment_runner import HF_CORE_HPARAMS_SEQLAB_MULTITASK, build_seqlab_model, \
     task_label_data
@@ -25,7 +26,7 @@ def load_or_build_seqlab_fulltrain_model(lang, hf_model_name, model_label, rseed
     model_path = os.path.join(current_module_folder, mfolder)
     if os.path.exists(model_path):
         print('Model found, loading ...')
-        return SklearnTransformerBase.load(model_path)
+        return SklearnTransformerMultiTask.load(model_path)
     else:
         print(f'No model found at {mfolder}. Building model.')
         model = build_seqlab_model_on_full_train(lang, hf_model_name, model_label, rseed=rseed, save=False)
@@ -47,10 +48,7 @@ def build_seqlab_model_on_full_train(lang, hf_model_name, model_label, rseed=354
                                        task_labels=task_labels, task_indices=task_indices)
             model.fit_(docs)
             if save:
-                raise NotImplementedError("Saving the model is not yet implemented.")
-                #TODO implement saving, modify SklearnTransformerBase save and load methods
-                # to use MultiTaskModel save and load when appropriate
-                # model.save(mfolder)
+                model.save(mfolder)
             return model
         except RuntimeError as e:
             if 'out of memory' in str(e).lower():
